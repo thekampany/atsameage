@@ -33,9 +33,10 @@ Create a `.env` file or set environment variables with your Immich instance deta
 ```bash
 cp ..env.sample .env
 ```
+Make sure to update: 
 
 ```env
-IMMICH_URL=https://your-immich-instance.com
+IMMICH_API_URL=https://your-immich-instance.com/api
 IMMICH_API_KEY=your-api-key-here
 ```
 
