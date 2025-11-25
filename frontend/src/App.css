@@ -1,0 +1,88 @@
+/* App.css */
+
+
+body {
+font-family: sans-serif;
+margin: 0;
+padding: 0;
+transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light theme */
+body.light {
+background-color: #ffffff;
+color: #111827; 
+}
+
+/* Dark theme */
+body.dark {
+background-color: #1f2937; 
+color: #f9fafb;
+}
+
+h1, h2, h3, h4, h5, h6 {
+margin: 0 0 1rem 0;
+}
+
+p {
+line-height: 1.6;
+}
+
+button:not(.as-link) {
+  font-family: inherit;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light button */
+body.light button:not(.as-link) {
+  background-color: #3b82f6; 
+  color: white;
+}
+
+/* Dark button */
+body.dark button:not(.as-link) {
+  background-color: #2563eb; 
+  color: white;
+}
+
+
+nav a,
+button.as-link {
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+.dark nav a,
+.dark button.as-link {
+  color: white;
+}
+
+.light nav a,
+.light button.as-link {
+  color: black;
+}
+
+nav a:hover,
+button.as-link:hover {
+  opacity: 0.7;
+}
+
+.person-info {
+  color: #6b7280; 
+  font-style: italic;
+}
+
+.dark .person-info {
+  color: #9ca3af; 
+  font-style: italic;
+}

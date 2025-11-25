@@ -1,0 +1,11 @@
+/* frontend/src/components/PhotosSameAgePage.css */
+
+.photo-crop {
+  width: auto;
+  height: auto;
+  transition: transform 0.5s ease;
+}
+
+div div:hover img.photo-crop {
+  transform: scale(1) translate(0, 0);
+}

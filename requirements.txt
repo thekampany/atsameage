@@ -1,0 +1,12 @@
+Django>=4.2
+djangorestframework>=3.14
+psycopg2-binary>=2.9
+Pillow>=9.0
+celery>=5.3
+redis>=4.3
+python-dateutil>=2.8
+gunicorn
+requests
+django-cors-headers
+django_celery_beat
+django_celery_results

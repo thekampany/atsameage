@@ -1,0 +1,82 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+     - pgdata:/var/lib/postgresql/data
+    networks:
+     - atsameage
+
+  redis:
+    image: redis:7
+    networks:
+     - atsameage
+
+  web:
+    build: .
+    command: bash -c "python manage.py migrate && gunicorn atsameage.wsgi:application --bind 0.0.0.0:8018"
+    volumes:
+     - .:/code
+     - media:/code/media
+    ports:
+     - "8018:8018"
+    env_file: .env
+    depends_on:
+     - db
+     - redis
+    networks:
+     - atsameage
+
+  celery_worker:
+    build: .
+    command: celery -A atsameage worker -l info
+    volumes:
+     - .:/code
+     - media:/code/media
+    env_file: .env
+    depends_on:
+     - redis
+     - db
+    networks:
+     - atsameage
+
+
+  celery_beat:
+    build: .
+    command: celery -A atsameage beat -l info
+    volumes:
+      - .:/code
+    env_file: .env
+    depends_on:
+      - redis
+      - db
+    networks:
+      - atsameage
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8018/api
+    depends_on:
+      - web
+    networks:
+      - atsameage
+
+
+volumes:
+  pgdata:
+  media:
+
+
+networks:
+  atsameage:
