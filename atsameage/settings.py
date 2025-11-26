@@ -57,10 +57,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '')
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+if cors_origins:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
+else:
+    CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
 ROOT_URLCONF = 'atsameage.urls'
 
