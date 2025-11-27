@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 export default function PeopleSameAgeLane() {
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
+
   const [people, setPeople] = useState([]);
   const [laneData, setLaneData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -205,7 +207,7 @@ export default function PeopleSameAgeLane() {
                   <div key={month} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     {photoObj ? (
                       <img
-                        src={`http://localhost:8018/api/photos/proxy/${photoObj.photo.source_id}/`}
+                        src={`${API_URL}/photos/proxy/${photoObj.photo.source_id}/`}
                         alt={`Month ${month}`}
                         style={{
                           width: "150px",

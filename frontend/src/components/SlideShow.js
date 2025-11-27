@@ -7,6 +7,7 @@ export default function SlideShow() {
   const [validMonths, setValidMonths] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
 
   useEffect(() => {
     async function load() {
@@ -141,7 +142,7 @@ export default function SlideShow() {
             }}
           >
             <img
-              src={`http://localhost:8018/api/photos/proxy/${item.photo.source_id}/`}
+              src={`${API_URL}/photos/proxy/${item.photo.source_id}/`}
               alt={`${item.person} - ${currentMonth} maanden`}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />

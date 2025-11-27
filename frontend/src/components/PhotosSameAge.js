@@ -4,9 +4,10 @@ import "./PhotosSameAgePage.css";
 function PhotosSameAgePage({ ageMonths, people }) {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
 
   useEffect(() => {
-    const url = `http://localhost:8018/api/photos/same_age/?age_months=${ageMonths}&people=${people}`;
+    const url = `${API_URL}/photos/same_age/?age_months=${ageMonths}&people=${people}`;
     fetch(url)
       .then(res => res.json())
       .then(data => {
@@ -61,13 +62,13 @@ function PhotosSameAgePage({ ageMonths, people }) {
           }}
           onClick={() =>
             window.open(
-              `http://localhost:8018/api/photos/proxy/${photo.source_id}/`,
+              `${API_URL}/photos/proxy/${photo.source_id}/`,
               "_blank"
             )
           }
         >
           <img
-            src={`http://localhost:8018/api/photos/proxy/${photo.source_id}/`}
+            src={`${API_URL}/photos/proxy/${photo.source_id}/`}
             alt={photo.person_name || "Person"}
             style={{
               display: "block",

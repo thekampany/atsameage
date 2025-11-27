@@ -4,9 +4,11 @@ export default function TaskList() {
   const [tasks, setTasks] = useState([]);
   const [taskStatuses, setTaskStatuses] = useState({}); // task_id → status
 
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
+
   async function fetchTasks() {
     try {
-      const res = await fetch("http://localhost:8018/api/tasks/");
+      const res = await fetch(`${API_URL}/tasks/`);
       const data = await res.json();
       setTasks(data);
     } catch (err) {
@@ -16,7 +18,7 @@ export default function TaskList() {
 
   async function runTask(taskPath) {
     try {
-      const res = await fetch(`http://localhost:8018/api/tasks/run/${taskPath}/`, {
+      const res = await fetch(`${API_URL}/tasks/run/${taskPath}/`, {
         method: "POST",
       });
       const data = await res.json(); // {task_id: "...", status: "PENDING"}
@@ -27,7 +29,7 @@ export default function TaskList() {
 
       const interval = setInterval(async () => {
         try {
-          const statusRes = await fetch(`http://localhost:8018/api/tasks/status/${taskId}/`);
+          const statusRes = await fetch(`${API_URL}/tasks/status/${taskId}/`);
           const statusData = await statusRes.json(); // {status: "PENDING|STARTED|SUCCESS|FAILURE"}
           setTaskStatuses(prev => ({ ...prev, [taskId]: statusData.status }));
 
