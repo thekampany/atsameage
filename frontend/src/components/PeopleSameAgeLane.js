@@ -121,23 +121,32 @@ export default function PeopleSameAgeLane() {
         gap: "10px"
         }}>
         {/* People list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", flex: "1 1 250px", padding: "10px", flexWrap: "wrap",border: "1px solid #ccc", borderRadius: "8px" }}>
-            {people.map(p => (
-            <div key={p.id}>
-                <label>
-                <input
-                    type="checkbox"
-                    checked={selected[p.id] || false}
-                    onChange={() => toggle(p.id)}
-                />
-                &nbsp;{p.name} ({p.birth_date})&nbsp; 
-                <span className="person-info">
-                    {p.photo_count} photos {Math.max(0, p.oldest_age.years)}y{Math.max(0, p.oldest_age.months)}m {Math.max(0, p.youngest_age.years)}y{Math.max(0, p.youngest_age.months)}m
-                </span>
-                </label>
-            </div>            ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", flex: "1 1 250px", padding: "10px", flexWrap: "wrap", border: "1px solid #ccc", borderRadius: "8px" }}>
+            {people.length === 0 ? (
+                <div style={{ padding: "20px", textAlign: "center", color: "#666" }}>
+                    <p>No people found.</p>
+                    <a href="/tasks" style={{ color: "#007bff", textDecoration: "underline" }}>
+                        Please Sync your data
+                    </a>
+                </div>
+            ) : (
+                people.map(p => (
+                    <div key={p.id}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={selected[p.id] || false}
+                                onChange={() => toggle(p.id)}
+                            />
+                            &nbsp;{p.name} ({p.birth_date})&nbsp; 
+                            <span className="person-info">
+                                {p.photo_count} photos {Math.max(0, p.oldest_age.years)}y{Math.max(0, p.oldest_age.months)}m {Math.max(0, p.youngest_age.years)}y{Math.max(0, p.youngest_age.months)}m
+                            </span>
+                        </label>
+                    </div>
+                ))
+            )}
         </div>
-
         {/* Age inputs + button */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: "1 1 200px", padding: "10px", flexWrap: "wrap",border: "1px solid #ccc", borderRadius: "8px"}}>
             <input
