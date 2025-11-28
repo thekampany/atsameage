@@ -16,13 +16,14 @@ import random
 from collections import defaultdict
 
 from rest_framework.decorators import api_view
-from django_celery_beat.models import PeriodicTask
+from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule
 from atsameage.celery import app
 
 from celery.result import AsyncResult
 from django.http import JsonResponse
 from people.tasks import sync_people_and_photos
 
+import json
 
 def people_list(request):
     people = (
@@ -58,6 +59,7 @@ def people_list(request):
 
 
 class PersonListView(ListAPIView):
+    serializer_class = PersonSerializer
     queryset = (
         Person.objects
         .annotate(
@@ -65,9 +67,8 @@ class PersonListView(ListAPIView):
             earliest_photo=Min("photos__photo_date"),
             latest_photo=Max("photos__photo_date"),
         )
+        .order_by("-birth_date") 
     )
-    serializer_class = PersonSerializer
-
 
 class PersonDetailView(RetrieveAPIView):
     queryset = (
@@ -181,8 +182,105 @@ def photo_proxy(request, photo_id):
 
 @api_view(['GET'])
 def list_tasks(request):
-    tasks = PeriodicTask.objects.all().values('id', 'name', 'task', 'enabled', 'last_run_at')
-    return Response(list(tasks))
+    tasks = PeriodicTask.objects.all()
+    task_list = []
+    
+    for task in tasks:
+        schedule_info = None
+        
+        if task.crontab:
+            schedule_info = {
+                'type': 'crontab',
+                'minute': task.crontab.minute,
+                'hour': task.crontab.hour,
+                'day_of_week': task.crontab.day_of_week,
+                'day_of_month': task.crontab.day_of_month,
+                'month_of_year': task.crontab.month_of_year,
+            }
+        elif task.interval:
+            schedule_info = {
+                'type': 'interval',
+                'every': task.interval.every,
+                'period': task.interval.period,
+            }
+        
+        task_list.append({
+            'id': task.id,
+            'name': task.name,
+            'task': task.task,
+            'enabled': task.enabled,
+            'last_run_at': task.last_run_at,
+            'schedule': schedule_info,
+        })
+    
+    return Response(task_list)
+
+@api_view(['GET', 'PUT'])
+def task_schedule(request, task_id):
+    try:
+        task = PeriodicTask.objects.get(id=task_id)
+    except PeriodicTask.DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
+    
+    if request.method == 'GET':
+        schedule_info = None
+        
+        if task.crontab:
+            schedule_info = {
+                'type': 'crontab',
+                'minute': task.crontab.minute,
+                'hour': task.crontab.hour,
+                'day_of_week': task.crontab.day_of_week,
+                'day_of_month': task.crontab.day_of_month,
+                'month_of_year': task.crontab.month_of_year,
+            }
+        elif task.interval:
+            schedule_info = {
+                'type': 'interval',
+                'every': task.interval.every,
+                'period': task.interval.period,
+            }
+        
+        return Response({
+            'id': task.id,
+            'name': task.name,
+            'task': task.task,
+            'enabled': task.enabled,
+            'schedule': schedule_info,
+        })
+    
+    elif request.method == 'PUT':
+        schedule_type = request.data.get('schedule_type')
+        
+        if schedule_type == 'crontab':
+            crontab, created = CrontabSchedule.objects.get_or_create(
+                minute=request.data.get('minute', '*'),
+                hour=request.data.get('hour', '*'),
+                day_of_week=request.data.get('day_of_week', '*'),
+                day_of_month=request.data.get('day_of_month', '*'),
+                month_of_year=request.data.get('month_of_year', '*'),
+            )
+            task.crontab = crontab
+            task.interval = None
+            
+        elif schedule_type == 'interval':
+            interval, created = IntervalSchedule.objects.get_or_create(
+                every=request.data.get('every'),
+                period=request.data.get('period'),
+            )
+            task.interval = interval
+            task.crontab = None
+        
+        if 'enabled' in request.data:
+            task.enabled = request.data['enabled']
+        
+        task.save()
+        
+        return Response({
+            'message': 'Schedule updated successfully',
+            'id': task.id,
+            'name': task.name,
+        })
 
 @api_view(['POST'])
 def run_task(request, task_name):
@@ -196,7 +294,7 @@ def run_task(request, task_name):
 
     return JsonResponse({"task_id": result.id, "status": result.status})
 
+@api_view(['GET'])
 def task_status(request, task_id):
     result = AsyncResult(task_id)
     return JsonResponse({"task_id": task_id, "status": result.status})
-

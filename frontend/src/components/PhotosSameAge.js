@@ -17,11 +17,11 @@ function PhotosSameAgePage({ ageMonths, people }) {
       .catch(() => setLoading(false));
   }, [ageMonths, people]);
 
-  if (loading) return <p>Loading photos...</p>;
-  if (!photos.length) return <p>No photos found for age {ageMonths} months.</p>;
+  if (loading) return <div style={{ padding: "20px" }}>Loading...</div>;
+  if (!photos.length) return <div style={{ padding: "20px" }}>No photos found for age {ageMonths} months.</div>;
 
   return (
-<div>
+<div style={{ padding: "20px" }}>
   <h2>Photos at {ageMonths} months</h2>
   {photos.map((photo) => {
     const box = photo.person_face_box;
@@ -30,16 +30,13 @@ function PhotosSameAgePage({ ageMonths, people }) {
     const boxWidth = box ? box.boundingBoxX2 - box.boundingBoxX1 : 1;
     const boxHeight = box ? box.boundingBoxY2 - box.boundingBoxY1 : 1;
 
-    // Originele foto afmetingen
     const imgWidth = box ? box.imageWidth : 1;
     const imgHeight = box ? box.imageHeight : 1;
 
-    // Schaal zodat face-box cropSize vult
     const scaleX = cropSize / boxWidth;
     const scaleY = cropSize / boxHeight;
     const scale = Math.min(scaleX, scaleY);
 
-    // Centreer het middelpunt van de bounding box
     const boxCenterX = box ? box.boundingBoxX1 + boxWidth / 2 : 0;
     const boxCenterY = box ? box.boundingBoxY1 + boxHeight / 2 : 0;
     const targetX = cropSize / 2;

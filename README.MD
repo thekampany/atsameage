@@ -77,8 +77,8 @@ frontend:
 
 ### 4. Build and run
 ```bash
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
 
 ### 5. Access the application
@@ -103,7 +103,7 @@ The app includes a scheduled task that runs daily at 3 AM to sync new photos. Yo
 ## How It Works
 
 1. **Data Collection**: Periodically queries your Immich instance for people with birth dates
-2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken
+2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: api/search/metadata.fileCreatedAt vs api/people.birthDate
 3. **Matching**: Groups photos by age across different people
 4. **Display**: Shows photos in a slideshow format, highlighting the common age
 

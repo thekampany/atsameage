@@ -8,6 +8,7 @@ from .views import (
     list_tasks,
     run_task,
     task_status,
+    task_schedule,
 )
 
 urlpatterns = [
@@ -17,6 +18,7 @@ urlpatterns = [
     path("photos/proxy/<str:photo_id>/", photo_proxy),
     path('sameagelane/', get_same_age_lane, name='sameagelane'),
     path("tasks/", list_tasks, name='list_tasks'),
+    path('tasks/<int:task_id>/schedule/', task_schedule, name='task_schedule'),
     path("tasks/run/<str:task_name>/", run_task, name='run_task'),
     path("tasks/status/<str:task_id>/", task_status, name="task_status"),
 ]

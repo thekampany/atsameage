@@ -78,6 +78,26 @@ export default function PeopleSameAgeLane() {
     load();
   }, []);
 
+  const getBirthdayEmoji = (birthDate) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    
+    if (today.getMonth() === birth.getMonth() && 
+        today.getDate() === birth.getDate()) {
+      return '🎂';
+    }
+    
+    return '';
+  };
+
+  const getThousandDaysEmoji = (ageInDays) => {
+    if (ageInDays > 0 && ageInDays % 1000 === 0) {
+      return '🎉';
+    }
+    
+    return '';
+  };
+
   const toggle = (id) => {
     setSelected(prev => ({ ...prev, [id]: !prev[id] }));
   };
@@ -105,7 +125,7 @@ export default function PeopleSameAgeLane() {
     setVisibleMonths(prev => prev.map(m => (m - 1 >= minMonth ? m - 1 : m)));
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div style={{ padding: "20px" }}>Loading...</div>;
 
   const displayedLane = laneData.filter(p => selected[p.person_id]);
 
@@ -138,9 +158,10 @@ export default function PeopleSameAgeLane() {
                                 checked={selected[p.id] || false}
                                 onChange={() => toggle(p.id)}
                             />
-                            &nbsp;{p.name} ({p.birth_date})&nbsp; 
+                            &nbsp;{p.name} ({p.birth_date}){getBirthdayEmoji(p.birth_date)}&nbsp; 
                             <span className="person-info">
                                 {p.photo_count} photos {Math.max(0, p.oldest_age.years)}y{Math.max(0, p.oldest_age.months)}m {Math.max(0, p.youngest_age.years)}y{Math.max(0, p.youngest_age.months)}m
+                                &nbsp;{p.age_in_days} days old{getThousandDaysEmoji(p.age_in_days)}
                             </span>
                         </label>
                     </div>
