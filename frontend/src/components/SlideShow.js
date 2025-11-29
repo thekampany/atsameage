@@ -143,7 +143,7 @@ export default function SlideShow() {
           >
             <img
               src={`${API_URL}/photos/proxy/${item.photo.source_id}/`}
-              alt={`${item.person} - ${currentMonth} maanden`}
+              alt={`${item.person} - ${currentMonth} months`}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <div style={{
@@ -171,9 +171,9 @@ export default function SlideShow() {
         fontSize: '24px',
         fontWeight: 'bold'
       }}>
-        {years > 0 && `${years} jaar `}
-        {months > 0 && `${months} ${months === 1 ? 'maand' : 'maanden'}`}
-        {years === 0 && months === 0 && 'Geboorte'}
+        {years > 0 && `${years} year `}
+        {months > 0 && `${months} ${months === 1 ? 'month' : 'months'}`}
+        {years === 0 && months === 0 && 'Birth'}
       </div>
 
       {/* Controls */}
@@ -199,7 +199,7 @@ export default function SlideShow() {
             border: 'none',
             cursor: 'pointer'
           }}
-          aria-label="Vorige"
+          aria-label="Previous"
         >
           ‹
         </button>
@@ -214,7 +214,7 @@ export default function SlideShow() {
             border: 'none',
             cursor: 'pointer'
           }}
-          aria-label={isPaused ? 'Afspelen' : 'Pauzeren'}
+          aria-label={isPaused ? 'Play' : 'Pause'}
         >
           {isPaused ? '▶' : '⏸'}
         </button>
@@ -229,7 +229,7 @@ export default function SlideShow() {
             border: 'none',
             cursor: 'pointer'
           }}
-          aria-label="Volgende"
+          aria-label="Next"
         >
           ›
         </button>

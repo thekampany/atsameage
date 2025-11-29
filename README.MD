@@ -22,6 +22,13 @@ AtSameAge connects to your Immich instance and retrieves photos of people who ha
 - An [Immich](https://immich.app/) instance with API access
 - People in your Immich instance with birth dates configured
 
+## Screenshots
+![home](images/Atsameage1.png). 
+![slideshoe](images/Atsameage2.png). 
+![at specific age](images/Atsameage3.png). 
+
+
+
 ## Installation
 
 ### 1. Clone the repository
