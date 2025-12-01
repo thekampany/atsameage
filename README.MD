@@ -20,7 +20,9 @@ AtSameAge connects to your Immich instance and retrieves photos of people who ha
 
 - Docker and Docker Compose
 - An [Immich](https://immich.app/) instance with API access
+  - Minimum permissions needed: `person.read`, `asset.read`
 - People in your Immich instance with birth dates configured
+
 
 ## Screenshots
 ![home](images/Atsameage1.png). 
@@ -120,7 +122,7 @@ The app includes a scheduled task that runs daily at 3 AM to sync new photos. Yo
 - **Backend**: Django REST API (port 8018)
 - **Task Queue**: Celery with Redis
 - **Database**: PostgreSQL
-- **Photo Source**: Immich API
+- **Photo Source**: Immich API 
 
 ## Troubleshooting
 
