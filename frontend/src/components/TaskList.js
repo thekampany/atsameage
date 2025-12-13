@@ -28,6 +28,36 @@ export default function TaskList() {
     }
   }
 
+  async function toggleTaskEnabled(taskId, currentEnabled) {
+    try {
+      const res = await fetch(`${API_URL}/tasks/${taskId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          enabled: !currentEnabled,
+        }),
+      });
+
+      if (res.ok) {
+        // Update de lokale state direct voor snelle feedback
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === taskId 
+              ? { ...task, enabled: !currentEnabled }
+              : task
+          )
+        );
+      } else {
+        alert("Failed to update task status");
+      }
+    } catch (err) {
+      console.error("Failed to toggle task:", err);
+      alert("Failed to update task status");
+    }
+  }
+
   async function runTask(taskPath) {
     try {
       const res = await fetch(`${API_URL}/tasks/run/${taskPath}/`, {
@@ -173,6 +203,7 @@ export default function TaskList() {
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead>
             <tr>
+              <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "8px" }}>Enabled</th>
               <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "8px" }}>Name</th>
               <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "8px" }}>Last Run</th>
               <th style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: "8px" }}>Status</th>
@@ -188,6 +219,47 @@ export default function TaskList() {
 
               return (
                 <tr key={task.id}>
+                  <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                    <label style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      cursor: "pointer",
+                      userSelect: "none"
+                    }}>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="checkbox"
+                          checked={task.enabled}
+                          onChange={() => toggleTaskEnabled(task.id, task.enabled)}
+                          style={{ display: "none" }}
+                        />
+                        <div
+                          style={{
+                            width: "44px",
+                            height: "24px",
+                            backgroundColor: task.enabled ? "#10b981" : "#d1d5db",
+                            borderRadius: "12px",
+                            position: "relative",
+                            transition: "background-color 0.2s",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "20px",
+                              height: "20px",
+                              backgroundColor: "white",
+                              borderRadius: "50%",
+                              position: "absolute",
+                              top: "2px",
+                              left: task.enabled ? "22px" : "2px",
+                              transition: "left 0.2s",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </label>
+                  </td>
                   <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
                     {task.name}
                   </td>

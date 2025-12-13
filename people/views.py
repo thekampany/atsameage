@@ -215,6 +215,25 @@ def list_tasks(request):
     
     return Response(task_list)
 
+@api_view(['PATCH'])
+def update_task(request, task_id):
+    try:
+        task = PeriodicTask.objects.get(id=task_id)
+    except PeriodicTask.DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
+    
+    if 'enabled' in request.data:
+        task.enabled = request.data['enabled']
+        task.save()
+    
+    return Response({
+        'id': task.id,
+        'name': task.name,
+        'task': task.task,
+        'enabled': task.enabled,
+        'last_run_at': task.last_run_at,
+    })
+
 @api_view(['GET', 'PUT'])
 def task_schedule(request, task_id):
     try:

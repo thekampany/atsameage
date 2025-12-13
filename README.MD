@@ -133,12 +133,12 @@ The app includes a scheduled task that runs daily at 3 AM to sync new photos. Yo
 
 ### CORS errors
 - Ensure `CORS_ALLOWED_ORIGINS` in `.env` includes your frontend URL
-- Restart the backend after changing CORS settings: `docker-compose restart web`
+- Restart the backend after changing CORS settings: `docker compose restart web`
 
 ### Can't access from another device
 - Add your machine's IP to `ALLOWED_HOSTS` in `.env`
 - Update `REACT_APP_API_URL` in `docker-compose.yml` to use your IP instead of localhost
-- Restart containers: `docker-compose restart`
+- Restart containers: `docker compose restart`
 
 
 
