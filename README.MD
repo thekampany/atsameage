@@ -22,7 +22,7 @@ In addition to syncing from Immich, you can also upload photos directly. To do t
 
 - Docker and Docker Compose
 - An [Immich](https://immich.app/) instance with API access
-  - Minimum permissions needed: `person.read`, `asset.read`
+  - Minimum permissions needed: `person.read`, `asset.read`, `asset.download`
 - People in your Immich instance with birth dates configured
 
 
