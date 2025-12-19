@@ -16,14 +16,23 @@ class Photo(models.Model):
     source = models.CharField(max_length=100, blank=True)
     source_id = models.CharField(max_length=200, blank=True)
 
-    remote_url = models.URLField(max_length=500, blank=True)  
+    # For uploads
+    file_path = models.ImageField(upload_to='photos/%Y/%m/', blank=True, null=True)
+    # For external sources
+    remote_url = models.URLField(max_length=500, blank=True)
+    
     person_face_box = models.JSONField(default=list, blank=True)    
-
     metadata = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     age_at_photo_years = models.FloatField(null=True, blank=True)
     age_at_photo_months = models.IntegerField(null=True, blank=True)
+    
+    @property
+    def photo_url(self):
+        if self.file_path:
+            return self.file_path.url
+        return self.remote_url
 
     class Meta:
         indexes = [models.Index(fields=['person', 'photo_date'])]

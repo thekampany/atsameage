@@ -6,6 +6,7 @@ from django.utils import timezone
 class PhotoSerializer(serializers.ModelSerializer):
     person_name = serializers.CharField(source="person.name", read_only=True)
     age_formatted = serializers.SerializerMethodField()
+    remote_url = serializers.SerializerMethodField() 
 
     class Meta:
         model = Photo
@@ -18,9 +19,18 @@ class PhotoSerializer(serializers.ModelSerializer):
             "age_at_photo_years",
             "age_at_photo_months",
             "age_formatted",
+            "source",
             "source_id",
             "person_name",
         ]
+    def get_remote_url(self, obj):
+        if obj.file_path:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file_path.url)
+            return obj.file_path.url
+        return obj.remote_url
+
     def get_age_formatted(self, obj):
         if obj.age_at_photo_months is None:
             return None

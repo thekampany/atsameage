@@ -20,10 +20,22 @@ from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSch
 from atsameage.celery import app
 
 from celery.result import AsyncResult
-from django.http import JsonResponse
+
 from people.tasks import sync_people_and_photos
 
 import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+import uuid
+import os
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from django.db import transaction
+from django.core.exceptions import ValidationError
+from django.core.files import File
+from django.core.files.storage import default_storage
+
 
 def people_list(request):
     people = (
@@ -106,7 +118,7 @@ class PhotosSameAgeView(APIView):
         if person_ids:
             qs = qs.filter(person_id__in=person_ids)
 
-        qs = qs.exclude(metadata__type="VIDEO")
+        qs = qs.exclude(metadata__type="VIDEO") | qs.filter(metadata={})
 
         photos = qs.order_by("age_at_photo_months")
 
@@ -116,8 +128,7 @@ class PhotosSameAgeView(APIView):
 
         selected = [random.choice(photo_list) for photo_list in grouped.values()]
 
-        return Response(PhotoSerializer(selected, many=True).data)
-
+        return Response(PhotoSerializer(selected, many=True, context={'request': request}).data)
 
 def get_photos_per_month(person):
     photos = person.photos.order_by('age_at_photo_months')
@@ -172,13 +183,23 @@ from django.http import HttpResponse
 import requests
 
 def photo_proxy(request, photo_id):
-    headers = {"x-api-key": f"{settings.IMMICH_API_KEY}"}
-    url = f"{settings.IMMICH_API_URL}/assets/{photo_id}/original"
-    r = requests.get(url, headers=headers)
-    if r.status_code == 200:
-        return HttpResponse(r.content, content_type=r.headers["Content-Type"])
-    return HttpResponse(status=r.status_code)
-
+    try:
+        photo = Photo.objects.get(source_id=photo_id)
+    except Photo.DoesNotExist:
+        return HttpResponse(status=404)
+    
+    if photo.source == 'own_json':
+        if photo.file_path:
+            from django.http import FileResponse
+            return FileResponse(photo.file_path.open('rb'))
+        return HttpResponse(status=404)
+    else:
+        headers = {"x-api-key": f"{settings.IMMICH_API_KEY}"}
+        url = f"{settings.IMMICH_API_URL}/assets/{photo_id}/original"
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return HttpResponse(r.content, content_type=r.headers["Content-Type"])
+        return HttpResponse(status=r.status_code)
 
 @api_view(['GET'])
 def list_tasks(request):
@@ -317,3 +338,131 @@ def run_task(request, task_name):
 def task_status(request, task_id):
     result = AsyncResult(task_id)
     return JsonResponse({"task_id": task_id, "status": result.status})
+
+def process_json_upload(json_data, uploaded_files):
+    stats = {
+        'persons_created': 0,
+        'persons_updated': 0,
+        'photos_created': 0,
+        'photos_skipped': 0,
+        'errors': []
+    }
+    
+    if 'persons' not in json_data:
+        raise ValidationError("JSON needs a 'persons' array")
+    
+    with transaction.atomic():
+        for person_data in json_data['persons']:
+            try:
+                if 'birth_date' not in person_data:
+                    stats['errors'].append(f"Person without birth_date was skipped")
+                    continue
+                
+                person_name = person_data.get('name', '')
+                
+                person = Person.objects.filter(name=person_name).first()
+                
+                if person:
+                    stats['persons_updated'] += 1
+                else:
+                    person = Person.objects.create(
+                        immich_id=uuid.uuid4(),
+                        name=person_name,
+                        birth_date=person_data['birth_date'],
+                        thumbnail_path='',
+                        updated_at=datetime.now()
+                    )
+                    stats['persons_created'] += 1
+                
+                photos = person_data.get('photos', [])
+                for photo_data in photos:
+                    try:
+                        filename = photo_data.get('filename')
+                        
+                        if not filename:
+                            stats['errors'].append(f"Photo without filename for {person.name}")
+                            continue
+                            
+                        if filename not in uploaded_files:
+                            stats['errors'].append(f"File {filename} not found in upload")
+                            continue
+                        
+                        existing_photo = Photo.objects.filter(
+                            file_path__icontains=filename
+                        ).first()
+                        
+                        if existing_photo:
+                            stats['photos_skipped'] += 1
+                            continue 
+                        
+                        photo_date = photo_data.get('photo_date')
+                        
+                        age_years = None
+                        age_months = None
+                        if photo_date:
+                            photo_date_obj = datetime.strptime(photo_date, '%Y-%m-%d').date()
+                            birth_date_obj = datetime.strptime(person_data['birth_date'], '%Y-%m-%d').date()
+                            
+                            delta = relativedelta(photo_date_obj, birth_date_obj)
+                            age_years = delta.years + delta.months / 12.0
+                            age_months = delta.years * 12 + delta.months
+                        
+                        width = photo_data.get('width', 1920)
+                        height = photo_data.get('height', 1080)
+                        person_face_box = [0, 0, width, height]
+                        
+                        source_id = f"own_json_{uuid.uuid4().hex[:12]}"
+                        
+                        photo = Photo(
+                            person=person,
+                            photo_date=photo_date,
+                            source='own_json',
+                            source_id=source_id,
+                            person_face_box=person_face_box,
+                            metadata={},
+                            age_at_photo_years=age_years,
+                            age_at_photo_months=age_months
+                        )
+                        
+                        photo.file_path.save(filename, uploaded_files[filename], save=False)
+                        photo.save()
+                        
+                        stats['photos_created'] += 1
+                        
+                    except Exception as e:
+                        stats['errors'].append(f"Error at photo {filename} for {person.name}: {str(e)}")
+                        
+            except Exception as e:
+                stats['errors'].append(f"Error at person: {str(e)}")
+                
+    return stats
+
+@csrf_exempt
+def upload_json_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST allowed'}, status=405)
+    
+    try:
+        json_file = request.FILES.get('json')
+        if not json_file:
+            return JsonResponse({'error': 'No JSON file found'}, status=400)
+        
+        json_data = json.loads(json_file.read())
+        
+        uploaded_files = {}
+        for key in request.FILES:
+            if key != 'json':
+                files = request.FILES.getlist(key)
+                for file in files:                  
+                    uploaded_files[file.name] = file
+        
+        stats = process_json_upload(json_data, uploaded_files) 
+        
+        return JsonResponse({
+            'success': True,
+            'stats': stats
+        })
+    except ValidationError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': f'Unexpected error: {str(e)}'}, status=500)

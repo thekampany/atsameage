@@ -3,7 +3,6 @@ import './App.css';
 
 import { BrowserRouter as Router, Routes, Route, useParams, useLocation, Link } from "react-router-dom";
 
-import PeopleList from "./components/PeopleList";
 import PhotosSameAgePage from "./components/PhotosSameAge";
 import TasksPage from "./components/TaskList";
 import SameAgeLane from "./components/SameAgeLane";

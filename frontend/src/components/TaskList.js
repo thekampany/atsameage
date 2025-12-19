@@ -16,7 +16,47 @@ export default function TaskList() {
     month_of_year: "*",
   });
 
+  // Upload form state
+  const [jsonFile, setJsonFile] = useState(null);
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showJsonExample, setShowJsonExample] = useState(false);
+
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
+
+  const exampleJson = `{
+  "persons": [
+    {
+      "name": "Jane Doe",
+      "birth_date": "2020-03-15",
+      "photos": [
+        {
+          "photo_date": "2020-06-20",
+          "filename": "jane_baby_1.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "photo_date": "2020-09-10",
+          "filename": "jane_baby_2.jpg"
+        }
+      ]
+    },
+    {
+      "name": "John Smith",
+      "birth_date": "2018-07-22",
+      "photos": [
+        {
+          "photo_date": "2019-01-05",
+          "filename": "john_toddler.jpg",
+          "width": 2048,
+          "height": 1536
+        }
+      ]
+    }
+  ]
+}`;
 
   async function fetchTasks() {
     try {
@@ -41,7 +81,6 @@ export default function TaskList() {
       });
 
       if (res.ok) {
-        // Update de lokale state direct voor snelle feedback
         setTasks(prevTasks => 
           prevTasks.map(task => 
             task.id === taskId 
@@ -105,6 +144,61 @@ export default function TaskList() {
       }, 2000);
     } catch (err) {
       console.error("Failed to start task:", err);
+    }
+  }
+
+  async function handleUploadSubmit() {
+    if (!jsonFile) {
+      alert("Please select a JSON file");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadStatus(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('json', jsonFile);
+      
+      for (const file of photoFiles) {
+        formData.append('photos', file, file.name);
+      }
+
+      const res = await fetch(`${API_URL}/upload-json/`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const msg = `Successfully imported: ${data.stats.persons_created} new persons, ${data.stats.persons_updated || 0} existing persons, ${data.stats.photos_created} photos created${data.stats.photos_skipped ? `, ${data.stats.photos_skipped} photos skipped (already exist)` : ''}`;
+        setUploadStatus({
+          success: true,
+          message: msg,
+          errors: data.stats.errors,
+        });
+        
+        setJsonFile(null);
+        setPhotoFiles([]);
+        
+        setTimeout(() => {
+          setUploadStatus(null);
+        }, 5000);
+      } else {
+        setUploadStatus({
+          success: false,
+          message: data.error || "Upload failed",
+        });
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setUploadStatus({
+        success: false,
+        message: "Network error during upload",
+      });
+    } finally {
+      setIsUploading(false);
     }
   }
 
@@ -194,9 +288,16 @@ export default function TaskList() {
     );
   };
 
+  function copyToClipboard() {
+    navigator.clipboard.writeText(exampleJson);
+    alert("JSON example copied to clipboard!");
+  }
+
+
   return (
     <div style={{ padding: "20px" }}>
       <h3>Planned Tasks</h3>
+
       {tasks.length === 0 ? (
         <p>No tasks found.</p>
       ) : (
@@ -309,6 +410,239 @@ export default function TaskList() {
             })}
           </tbody>
         </table>
+      )}
+
+      {/* Upload Data Section */}
+      <div style={{ marginTop: "48px" }}>
+        <h3>Upload Data</h3>
+        
+        <div style={{ 
+          maxWidth: "600px",
+          padding: "24px",
+          backgroundColor: isDarkMode ? "#1f2937" : "#f9fafb",
+          borderRadius: "8px",
+          border: `1px solid ${isDarkMode ? "#374151" : "#e5e7eb"}`
+        }}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500",
+              color: isDarkMode ? "#f3f4f6" : "#111827"
+            }}>
+              JSON File *
+            </label>
+            <input
+              type="file"
+              accept=".json"
+              onChange={(e) => setJsonFile(e.target.files[0])}
+              disabled={isUploading}
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: `1px solid ${isDarkMode ? "#4b5563" : "#d1d5db"}`,
+                borderRadius: "4px",
+                backgroundColor: isDarkMode ? "#374151" : "#ffffff",
+                color: isDarkMode ? "#f3f4f6" : "#111827",
+                cursor: isUploading ? "not-allowed" : "pointer",
+              }}
+            />
+            <p style={{ 
+              fontSize: "12px", 
+              color: isDarkMode ? "#9ca3af" : "#6b7280",
+              marginTop: "4px",
+              marginBottom: 0
+            }}>
+              <button
+                onClick={() => setShowJsonExample(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#3b82f6",
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: "12px",
+                }}
+              >
+                View JSON format example
+              </button>
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px", 
+              fontWeight: "500",
+              color: isDarkMode ? "#f3f4f6" : "#111827"
+            }}>
+              Photo Files
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setPhotoFiles(Array.from(e.target.files))}
+              disabled={isUploading}
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: `1px solid ${isDarkMode ? "#4b5563" : "#d1d5db"}`,
+                borderRadius: "4px",
+                backgroundColor: isDarkMode ? "#374151" : "#ffffff",
+                color: isDarkMode ? "#f3f4f6" : "#111827",
+                cursor: isUploading ? "not-allowed" : "pointer",
+              }}
+            />
+            {photoFiles.length > 0 && (
+              <p style={{ 
+                fontSize: "12px", 
+                color: isDarkMode ? "#9ca3af" : "#6b7280",
+                marginTop: "4px",
+                marginBottom: 0
+              }}>
+                {photoFiles.length} file(s) selected
+              </p>
+            )}
+          </div>
+
+          {uploadStatus && (
+            <div style={{
+              padding: "12px",
+              borderRadius: "4px",
+              marginBottom: "16px",
+              backgroundColor: uploadStatus.success ? "#d1fae5" : "#fee2e2",
+              color: uploadStatus.success ? "#065f46" : "#991b1b",
+            }}>
+              <p style={{ margin: 0, fontWeight: "500" }}>
+                {uploadStatus.success ? "✓" : "✗"} {uploadStatus.message}
+              </p>
+              {uploadStatus.errors && uploadStatus.errors.length > 0 && (
+                <ul style={{ marginTop: "8px", marginBottom: 0, paddingLeft: "20px" }}>
+                  {uploadStatus.errors.map((error, idx) => (
+                    <li key={idx} style={{ fontSize: "12px" }}>{error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={handleUploadSubmit}
+            disabled={isUploading || !jsonFile}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: (isUploading || !jsonFile) ? "#9ca3af" : "#10b981",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: (isUploading || !jsonFile) ? "not-allowed" : "pointer",
+              fontWeight: "500",
+              fontSize: "14px",
+            }}
+          >
+            {isUploading ? "Uploading..." : "Upload"}
+          </button>
+        </div>
+      </div>
+
+      {/* JSON Example Modal */}
+      {showJsonExample && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1001,
+          }}
+          onClick={() => setShowJsonExample(false)}
+        >
+          <div
+            style={{
+              backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
+              color: isDarkMode ? "#f3f4f6" : "#111827",
+              borderRadius: "8px",
+              padding: "24px",
+              maxWidth: "600px",
+              width: "90%",
+              maxHeight: "80vh",
+              overflow: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginTop: 0 }}>JSON Format Example</h3>
+            
+            <div style={{ 
+              marginBottom: "16px",
+              padding: "12px",
+              backgroundColor: isDarkMode ? "#374151" : "#f3f4f6",
+              borderRadius: "6px",
+              fontSize: "14px",
+              lineHeight: "1.6",
+            }}>
+              <p style={{ margin: 0, marginBottom: "8px" }}>
+                Populate this JSON with your persons and photos. The JSON can be reused to add photos.
+              </p>
+              <p style={{ margin: 0, marginBottom: "8px" }}>
+                • <strong>Atsameage will add photos to existing persons</strong> with the same name as in the JSON.
+              </p>
+              <p style={{ margin: 0 }}>
+                • <strong>Atsameage will skip photos</strong> with a filename that was already uploaded earlier.
+              </p>
+            </div>
+
+            <pre
+              style={{
+                backgroundColor: isDarkMode ? "#111827" : "#f9fafb",
+                color: isDarkMode ? "#f3f4f6" : "#111827",
+                padding: "16px",
+                borderRadius: "6px",
+                overflow: "auto",
+                fontSize: "13px",
+                border: `1px solid ${isDarkMode ? "#374151" : "#e5e7eb"}`,
+                marginBottom: "16px",
+              }}
+            >
+              {exampleJson}
+            </pre>
+
+            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setShowJsonExample(false)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: isDarkMode ? "#374151" : "#e5e7eb",
+                  color: isDarkMode ? "#f3f4f6" : "#374151",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+              <button
+                onClick={copyToClipboard}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                📋 Copy to Clipboard
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Schedule Edit Modal */}

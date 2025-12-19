@@ -4,7 +4,9 @@ A photo slideshow application that displays photos from your Immich instance of 
 
 ## Overview
 
-AtSameAge connects to your Immich instance and retrieves photos of people who have their birth dates registered. It then displays photos of different people who were the same age at the time the photo was taken, creating an interesting comparison across time and generations.
+AtSameAge connects to your Immich instance and retrieves photos of people with registered birth dates. It displays photos of different people who were the same age when their photo was taken, creating fascinating comparisons across time and generations.
+
+In addition to syncing from Immich, you can also upload photos directly. To do this, create a JSON file containing person details, birth dates, photo filenames, and the dates each photo was taken. This allows you to include digitized images from the analog photography era, expanding your age comparisons beyond your digital first photo library.
 
 ## Features
 
@@ -111,7 +113,7 @@ The app includes a scheduled task that runs daily at 3 AM to sync new photos. Yo
 
 ## How It Works
 
-1. **Data Collection**: Periodically queries your Immich instance for people with birth dates
+1. **Data Collection**: Periodically queries your Immich instance for people with birth dates. And (or) relies on data you upload
 2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: api/search/metadata.fileCreatedAt vs api/people.birthDate
 3. **Matching**: Groups photos by age across different people
 4. **Display**: Shows photos in a slideshow format, highlighting the common age
@@ -157,7 +159,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built for use with [Immich](https://immich.app/)
+- Built for use with [Immich](https://immich.app/) (But can also be used without Immich)
 - Inspired by the joy of comparing life moments across time
 
 ## Support
