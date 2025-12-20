@@ -7,7 +7,13 @@ export default function SlideShow() {
   const [validMonths, setValidMonths] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [selected, setSelected] = useState({});
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8018/api";
+
+  useEffect(() => {
+    if (Object.keys(selected).length === 0) return;
+    localStorage.setItem('selectedPeople', JSON.stringify(selected));
+  }, [selected]);
 
   useEffect(() => {
     async function load() {
@@ -18,7 +24,7 @@ export default function SlideShow() {
         if (saved) {
           const selected = JSON.parse(saved);
           const ids = Object.keys(selected).filter(id => selected[id]).join(',');
-          const peopleParam = ids;
+          peopleParam = ids;
         }
 
         const url = peopleParam 

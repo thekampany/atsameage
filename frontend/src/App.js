@@ -52,8 +52,8 @@ function App() {
             <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
               <nav style={{ display: "flex", gap: "15px" }}>
                 <Link to="/">Home</Link>
-                <Link to="/tasks">Ingestions</Link>
                 <Link to="/slideshow">Slideshow</Link>
+                <Link to="/tasks">Ingestions</Link>
               </nav>
               <button className="as-link" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
                 Light/Dark
