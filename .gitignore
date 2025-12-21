@@ -1,7 +1,19 @@
 .env
 people/__pycache__/
-atsameage/__pychache__/
+atsameage/__pycache__/
+photos/
+media/
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.db
+celerybeat.pid
+
+# PostgreSQL
+*.db-shm
+*.db-wal
+
 .old
 *.tar
-photos
-
+*.log
+.DS_Store

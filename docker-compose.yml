@@ -9,11 +9,15 @@ services:
      - pgdata:/var/lib/postgresql/data
     networks:
      - atsameage
+    restart: unless-stopped 
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
+    volumes:
+     - redis_data:/data
     networks:
      - atsameage
+    restart: unless-stopped
 
   web:
     build: .
@@ -29,6 +33,7 @@ services:
      - redis
     networks:
      - atsameage
+    restart: unless-stopped
 
   celery_worker:
     build: .
@@ -40,8 +45,10 @@ services:
     depends_on:
      - redis
      - db
+     - web
     networks:
      - atsameage
+    restart: unless-stopped
 
 
   celery_beat:
@@ -53,8 +60,10 @@ services:
     depends_on:
       - redis
       - db
+      - web
     networks:
       - atsameage
+    restart: unless-stopped
 
   frontend:
     build:
@@ -71,11 +80,13 @@ services:
       - web
     networks:
       - atsameage
+    restart: unless-stopped
 
 
 volumes:
   pgdata:
   media:
+  redis_data:
 
 
 networks:

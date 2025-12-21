@@ -36,6 +36,8 @@ from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
 
+from django.core.cache import cache
+
 
 def people_list(request):
     people = (
@@ -158,14 +160,20 @@ def get_photos_per_month(person):
 def get_same_age_lane(request):
     people_param = request.query_params.get("people", None)
 
+    cache_key = f'sameagelane_{people_param or "all"}'
+    
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data)
+
     if people_param:
         try:
             people_ids = [int(p.strip()) for p in people_param.split(",")]
         except ValueError:
             return Response({"error": "Invalid people parameter"}, status=400)
-        people = Person.objects.filter(id__in=people_ids).prefetch_related('photos')
+        people = Person.objects.filter(id__in=people_ids).prefetch_related('photos').order_by('-birth_date')
     else:
-        people = Person.objects.prefetch_related('photos').all()
+        people = Person.objects.prefetch_related('photos').all().order_by('-birth_date')
 
     data = []
     for person in people:
@@ -175,6 +183,8 @@ def get_same_age_lane(request):
             "birth_date": person.birth_date,
             "agelane": get_photos_per_month(person)
         })
+
+    cache.set(cache_key, data, 60 * 15)
 
     return Response(data)
 
@@ -447,7 +457,9 @@ def process_json_upload(json_data, uploaded_files):
                         
             except Exception as e:
                 stats['errors'].append(f"Error at person: {str(e)}")
-                
+
+    cache.delete_pattern('sameagelane_*')
+
     return stats
 
 @csrf_exempt

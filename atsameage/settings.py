@@ -162,3 +162,13 @@ CELERY_TIMEZONE = 'UTC'
 
 IMMICH_API_URL = os.environ.get("IMMICH_API_URL")
 IMMICH_API_KEY = os.environ.get("IMMICH_API_KEY")  
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        'KEY_PREFIX': 'atsameage',
+        'TIMEOUT': 900,
+    }
+}
