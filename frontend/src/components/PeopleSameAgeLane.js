@@ -142,7 +142,7 @@ export default function PeopleSameAgeLane() {
     <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "2rem" }}>
       
         <div style={{
-        display: "flex",
+        /*display: "flex",*/
         flexWrap: "wrap",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -150,7 +150,7 @@ export default function PeopleSameAgeLane() {
         gap: "10px"
         }}>
         {/* People list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", flex: "1 1 250px", padding: "10px", flexWrap: "wrap", border: "1px solid #ccc", borderRadius: "8px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", flex: "1 1 250px", padding: "10px", flexWrap: "wrap", border: "1px solid #ccc", borderRadius: "8px",maxWidth: "800px",marginBottom: "5px" }}>
             {people.length === 0 ? (
                 <div style={{ padding: "20px", textAlign: "center", color: "#666" }}>
                     <p>No people found.</p>
@@ -178,7 +178,7 @@ export default function PeopleSameAgeLane() {
             )}
         </div>
         {/* Age inputs + button */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: "1 1 200px", padding: "10px", flexWrap: "wrap",border: "1px solid #ccc", borderRadius: "8px"}}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: "1 1 200px", padding: "10px", flexWrap: "wrap",border: "1px solid #ccc", borderRadius: "8px",maxWidth: "800px"}}>
             <input
             type="number"
             value={ageYears}
@@ -237,7 +237,7 @@ export default function PeopleSameAgeLane() {
           }}
         >◀</div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px", flex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {displayedLane.map(person => (
             <div key={person.person} style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
               {visibleMonths.map(month => {
