@@ -94,7 +94,7 @@ export default function SameAgeLane() {
                     <div key={month} style={{ display: "flex", flexDirection: "column" }}>
                       {photoObj ? (
                         <img
-                          src={`http://localhost:8018/api/photos/proxy/${photoObj.photo.source_id}/`}
+                          src={`http://localhost:8018/api/photos/proxy/${photoObj.photo.id}/`}
                           alt={`Month ${month}`}
                           style={{
                             width: "100px",

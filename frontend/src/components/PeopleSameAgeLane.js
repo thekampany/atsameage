@@ -246,7 +246,7 @@ export default function PeopleSameAgeLane() {
                   <div key={month} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     {photoObj ? (
                       <img
-                        src={`${API_URL}/photos/proxy/${photoObj.photo.source_id}/`}
+                        src={`${API_URL}/photos/proxy/${photoObj.photo.id}/`}
                         alt={`Month ${month}`}
                         style={{
                           width: "150px",

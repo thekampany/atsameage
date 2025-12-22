@@ -148,7 +148,7 @@ export default function SlideShow() {
             }}
           >
             <img
-              src={`${API_URL}/photos/proxy/${item.photo.source_id}/`}
+              src={`${API_URL}/photos/proxy/${item.photo.id}/`}
               alt={`${item.person} - ${currentMonth} months`}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />

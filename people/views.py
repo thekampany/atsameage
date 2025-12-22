@@ -194,7 +194,7 @@ import requests
 
 def photo_proxy(request, photo_id):
     try:
-        photo = Photo.objects.get(source_id=photo_id)
+        photo = Photo.objects.get(id=photo_id)
     except Photo.DoesNotExist:
         return HttpResponse(status=404)
     
@@ -218,7 +218,7 @@ def photo_proxy(request, photo_id):
         return HttpResponse(status=404)
     else:
         headers = {"x-api-key": f"{settings.IMMICH_API_KEY}"}
-        url = f"{settings.IMMICH_API_URL}/assets/{photo_id}/original"
+        url = f"{settings.IMMICH_API_URL}/assets/{photo.source_id}/original"
         r = requests.get(url, headers=headers)
         if r.status_code == 200:
             return HttpResponse(r.content, content_type=r.headers["Content-Type"])

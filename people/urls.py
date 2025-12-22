@@ -17,7 +17,7 @@ urlpatterns = [
     path("people/", PersonListView.as_view(), name="people"),
     path("people/<int:pk>/", PersonDetailView.as_view(), name="person-detail"),
     path("photos/same_age/", PhotosSameAgeView.as_view(), name="photos-same-age"),
-    path("photos/proxy/<str:photo_id>/", photo_proxy),
+    path("photos/proxy/<int:photo_id>/", photo_proxy),
     path('sameagelane/', get_same_age_lane, name='sameagelane'),
     path("tasks/", list_tasks, name='list_tasks'),
     path('tasks/<int:task_id>/', update_task, name='update_task'), 

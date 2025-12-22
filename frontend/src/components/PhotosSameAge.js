@@ -59,13 +59,13 @@ function PhotosSameAgePage({ ageMonths, people }) {
           }}
           onClick={() =>
             window.open(
-              `${API_URL}/photos/proxy/${photo.source_id}/`,
+              `${API_URL}/photos/proxy/${photo.id}/`,
               "_blank"
             )
           }
         >
           <img
-            src={`${API_URL}/photos/proxy/${photo.source_id}/`}
+            src={`${API_URL}/photos/proxy/${photo.id}/`}
             alt={photo.person_name || "Person"}
             style={{
               display: "block",
