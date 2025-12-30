@@ -22,6 +22,8 @@ In addition to syncing from Immich or Photoprism, you can also upload photos dir
 
 - Docker and Docker Compose
 
+and
+
 - An [Immich](https://immich.app/) instance with API access
   - Minimum permissions needed: `person.read`, `asset.read`, `asset.download`
 - People in your Immich instance with birth dates configured
@@ -34,7 +36,7 @@ or
 
 ## Screenshots
 ![home](images/Atsameage1.png). 
-![slideshoe](images/Atsameage2.png). 
+![slideshow](images/Atsameage2.png). 
 ![at specific age](images/Atsameage3.png). 
 
 

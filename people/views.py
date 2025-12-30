@@ -202,21 +202,8 @@ def photo_proxy(request, photo_id):
     
     if photo.source == 'own_json' or photo.source == 'photoprism':
         if photo.file_path:
-            try:
-                from django.core.files.storage import default_storage
-                
-                if default_storage.exists(photo.file_path.name):
-                    file = default_storage.open(photo.file_path.name, 'rb')
-                    from django.http import FileResponse
-                    import mimetypes
-                    
-                    content_type, _ = mimetypes.guess_type(photo.file_path.name)
-                    return FileResponse(file, content_type=content_type or 'image/jpeg')
-                else:
-                    return HttpResponse(status=404)
-            except Exception as e:
-                print(f"Error serving file: {e}")
-                return HttpResponse(status=500)
+            from django.shortcuts import redirect
+            return redirect(photo.file_path.url)
         return HttpResponse(status=404)
     else:
         headers = {"x-api-key": f"{settings.IMMICH_API_KEY}"}
