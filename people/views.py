@@ -460,7 +460,17 @@ def process_json_upload(json_data, uploaded_files):
             except Exception as e:
                 stats['errors'].append(f"Error at person: {str(e)}")
 
-    cache.delete_pattern('sameagelane_*')
+    try:
+        if hasattr(cache, 'delete_pattern'):
+            cache.delete_pattern('sameagelane_*')
+        else:
+            from django_redis import get_redis_connection
+            redis_conn = get_redis_connection('default')
+            keys = redis_conn.keys('sameagelane_*')
+            if keys:
+                redis_conn.delete(*keys)
+    except Exception as e:
+        print(f"Cache clear warning: {e}")
 
     return stats
 

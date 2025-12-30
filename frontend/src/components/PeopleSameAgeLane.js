@@ -169,7 +169,7 @@ export default function PeopleSameAgeLane() {
                             />
                             &nbsp;{p.name} ({p.birth_date}){getBirthdayEmoji(p.birth_date)}&nbsp; 
                             <span className="person-info">
-                                {p.photo_count} photos {Math.max(0, p.oldest_age.years)}y{Math.max(0, p.oldest_age.months)}m {Math.max(0, p.youngest_age.years)}y{Math.max(0, p.youngest_age.months)}m
+                                {p.photo_count} photos {Math.max(0, p.oldest_age?.years || 0)}y{Math.max(0, p.oldest_age?.months || 0)}m {Math.max(0, p.youngest_age?.years || 0)}y{Math.max(0, p.youngest_age?.months || 0)}m
                                 &nbsp;{p.age_in_days} days old{getThousandDaysEmoji(p.age_in_days)}
                             </span>
                         </label>

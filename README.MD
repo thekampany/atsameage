@@ -25,8 +25,10 @@ In addition to syncing from Immich or Photoprism, you can also upload photos dir
 - An [Immich](https://immich.app/) instance with API access
   - Minimum permissions needed: `person.read`, `asset.read`, `asset.download`
 - People in your Immich instance with birth dates configured
+
 or
-- A Photoprism instance with API access
+
+- A [Photoprism](https://www.photoprism.app/) instance with API access
   - via Settings > Account > Security and Access add full access for a device and copy the key. 
   - Make sure that in your Photoprism docker-compose.yml you have a value for environment variable PHOTOPRISM_DOWNLOAD_TOKEN
 
