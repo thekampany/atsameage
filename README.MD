@@ -4,9 +4,9 @@ A photo slideshow application that displays photos from your Immich instance of 
 
 ## Overview
 
-AtSameAge connects to your Immich instance and retrieves photos of people with registered birth dates. It displays photos of different people who were the same age when their photo was taken, creating fascinating comparisons across time and generations.
+AtSameAge connects to your Immich or Photoprism instance and retrieves photos of people with registered birth dates. It displays photos of different people who were the same age when their photo was taken, creating fascinating comparisons across time and generations.
 
-In addition to syncing from Immich, you can also upload photos directly. To do this, create a JSON file containing person details, birth dates, photo filenames, and the dates each photo was taken. This allows you to include digitized images from the analog photography era, expanding your age comparisons beyond your digital first photo library.
+In addition to syncing from Immich or Photoprism, you can also upload photos directly. To do this, create a JSON file containing person details, birth dates, photo filenames, and the dates each photo was taken. This allows you to include digitized images from the analog photography era, expanding your age comparisons beyond your digital first photo library.
 
 ## Features
 
@@ -21,10 +21,14 @@ In addition to syncing from Immich, you can also upload photos directly. To do t
 ## Prerequisites
 
 - Docker and Docker Compose
+
 - An [Immich](https://immich.app/) instance with API access
   - Minimum permissions needed: `person.read`, `asset.read`, `asset.download`
 - People in your Immich instance with birth dates configured
-
+or
+- A Photoprism instance with API access
+  - via Settings > Account > Security and Access add full access for a device and copy the key. 
+  - Make sure that in your Photoprism docker-compose.yml you have a value for environment variable PHOTOPRISM_DOWNLOAD_TOKEN
 
 ## Screenshots
 ![home](images/Atsameage1.png). 
@@ -53,6 +57,11 @@ cp .env.sample .env
 # Immich Connection
 IMMICH_API_URL=https://your-immich-instance.com/api
 IMMICH_API_KEY=your-api-key-here
+
+# Photoprism Connection
+PHOTOPRISM_BASE_URL = "http://yourphotoprismip:2342"
+PHOTOPRISM_TOKEN = "from-apps-and-devices" 
+PHOTOPRISM_SECURITY_TOKEN = "from-your-photoprism-docker-compose"
 
 # Django Settings
 SECRET_KEY=your-secret-key-here
@@ -102,8 +111,22 @@ Open your browser and visit:
 
 ### First Time Setup
 
+For Immich
 1. **Navigate to Ingestions** page in the application
 2. **Run the sync task manually** to import people and photos from Immich
+3. **Go back to the main page** to see your photos grouped by age
+4. **Start the slideshow!**
+
+For Photoprism
+1. **Navigate to Ingestions** page in the application
+2. **Create and upload a JSON** with names and date of births for people that are recognized by Photoprism
+3. **Run the sync task manually** to import photos from Photoprism
+4. **Go back to the main page** to see your photos grouped by age
+5. **Start the slideshow!**
+
+Without Immich or Photoprism
+1. **Navigate to Ingestions** page in the application
+2. **Create and upload a JSON** with names and date of births for people and photos
 3. **Go back to the main page** to see your photos grouped by age
 4. **Start the slideshow!**
 
@@ -114,7 +137,8 @@ The app includes a scheduled task that runs daily at 3 AM to sync new photos. Yo
 ## How It Works
 
 1. **Data Collection**: Periodically queries your Immich instance for people with birth dates. And (or) relies on data you upload
-2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: api/search/metadata.fileCreatedAt vs api/people.birthDate
+2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: Immich based on api/search/metadata.fileCreatedAt vs api/people.birthDate
+Photoprism based on TakenAt vs uploaded date of birth
 3. **Matching**: Groups photos by age across different people
 4. **Display**: Shows photos in a slideshow format, highlighting the common age
 

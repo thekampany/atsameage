@@ -198,8 +198,20 @@ export default function PeopleSameAgeLane() {
             <input
             type="number"
             value={ageMonths}
-            onChange={(e) => setAgeMonths(parseInt(e.target.value || 0, 10))}
+            onChange={(e) => {
+                let value = parseInt(e.target.value || 0, 10);
+                
+                if (value < 0) {
+                    value = 12;
+                } else if (value > 12) {
+                    value = 0;
+                }
+                
+                setAgeMonths(value);
+            }}
             placeholder="0"
+            min="0"
+            max="12"
             style={{
                 width: "4rem",
                 width: "5ch",

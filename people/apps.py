@@ -24,7 +24,26 @@ class PeopleConfig(AppConfig):
                     name='my-immich-sync-task',
                     task='people.tasks.sync_people_and_photos',
                     args=json.dumps([]),
+                    queue='celery',
                 )
+
+            if not PeriodicTask.objects.filter(name='my-photoprism-sync-task').exists():
+                schedule_photoprism, created = CrontabSchedule.objects.get_or_create(
+                    minute='0',      
+                    hour='4',
+                    day_of_week='*',
+                    day_of_month='*',
+                    month_of_year='*',
+                )
+
+                PeriodicTask.objects.create(
+                    crontab=schedule_photoprism,
+                    name='my-photoprism-sync-task',
+                    task='people.tasks.sync_photoprism_photos',
+                    args=json.dumps([]),
+                    queue='celery',
+                )
+
 
         except Exception:
             pass

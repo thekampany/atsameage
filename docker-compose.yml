@@ -37,7 +37,7 @@ services:
 
   celery_worker:
     build: .
-    command: celery -A atsameage worker -l info
+    command: celery -A atsameage worker -l info -Q celery,default
     volumes:
      - .:/code
      - media:/code/media

@@ -6,6 +6,8 @@ media/
 
 # Celery
 celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
 celerybeat-schedule.db
 celerybeat.pid
 

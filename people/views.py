@@ -130,6 +130,8 @@ class PhotosSameAgeView(APIView):
 
         selected = [random.choice(photo_list) for photo_list in grouped.values()]
 
+        selected.sort(key=lambda photo: photo.person.birth_date, reverse=True) 
+
         return Response(PhotoSerializer(selected, many=True, context={'request': request}).data)
 
 def get_photos_per_month(person):
@@ -198,7 +200,7 @@ def photo_proxy(request, photo_id):
     except Photo.DoesNotExist:
         return HttpResponse(status=404)
     
-    if photo.source == 'own_json':
+    if photo.source == 'own_json' or photo.source == 'photoprism':
         if photo.file_path:
             try:
                 from django.core.files.storage import default_storage
