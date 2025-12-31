@@ -120,8 +120,11 @@ class PhotosSameAgeView(APIView):
         if person_ids:
             qs = qs.filter(person_id__in=person_ids)
 
-        qs = qs.exclude(metadata__type="VIDEO") | qs.filter(metadata={})
-
+        qs = qs.filter(
+            Q(metadata__isnull=True) | 
+            ~Q(metadata__has_key='type') |   
+            ~Q(metadata__type="VIDEO")
+        )
         photos = qs.order_by("age_at_photo_months")
 
         grouped = defaultdict(list)
