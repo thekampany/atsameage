@@ -15,7 +15,7 @@ class PeopleConfig(AppConfig):
                     minute='0',      
                     hour='3',
                     day_of_week='*',
-                    day_of_month='*',
+                    day_of_month='3',
                     month_of_year='*',
                 )
 
@@ -32,7 +32,7 @@ class PeopleConfig(AppConfig):
                     minute='0',      
                     hour='4',
                     day_of_week='*',
-                    day_of_month='*',
+                    day_of_month='3',
                     month_of_year='*',
                 )
 

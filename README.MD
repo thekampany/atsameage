@@ -1,6 +1,6 @@
 # AtSameAge
 
-A photo slideshow application that displays photos from your Immich instance of people who were the same age when their photos were taken.
+A photo slideshow application that displays photos from your Immich/Photoprism instance of people who were the same age when their photos were taken.
 
 ## Overview
 
@@ -31,7 +31,7 @@ and
 or
 
 - A [Photoprism](https://www.photoprism.app/) instance with API access
-  - via Settings > Account > Security and Access add full access for a device and copy the key. 
+  - via Settings > Account > Security and Access add full access for a device and save the key. 
   - Make sure that in your Photoprism docker-compose.yml you have a value for environment variable PHOTOPRISM_DOWNLOAD_TOKEN
 
 ## Screenshots
@@ -76,7 +76,7 @@ DEBUG=1
 ALLOWED_HOSTS=localhost,127.0.0.1,192.168.x.x
 
 # CORS (frontend access)
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://192.168.x.x:3013
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://192.168.x.x:3000
 
 # Database
 POSTGRES_DB=atsameage
@@ -136,15 +136,17 @@ Without Immich or Photoprism
 
 ### Automatic Syncing
 
-The app includes a scheduled task that runs daily at 3 AM to sync new photos. You can modify this schedule in the Django admin or via the Tasks page.
+The app includes a scheduled task that runs monthly to sync new photos. You can modify this schedule via the Tasks page.
 
 ## How It Works
 
 1. **Data Collection**: Periodically queries your Immich instance for people with birth dates. And (or) relies on data you upload
-2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: Immich based on api/search/metadata.fileCreatedAt vs api/people.birthDate
-Photoprism based on TakenAt vs uploaded date of birth
+2. **Age Calculation**: For each photo, calculates how old the person was when the photo was taken: 
+   a. Immich based on api/search/metadata.fileCreatedAt vs api/people.birthDate.
+   b. Photoprism based on TakenAt vs date of birth as provided in uploaded Json.
+   c. Own Json based on photo_date vs birth_date in uploaded json-file.
 3. **Matching**: Groups photos by age across different people
-4. **Display**: Shows photos in a slideshow format, highlighting the common age
+4. **Display**: Shows photos in a slideshow format, highlighting the common age. Allows for some delta to compare there is just 1 month difference
 
 ## Architecture
 
@@ -160,6 +162,7 @@ Photoprism based on TakenAt vs uploaded date of birth
 - Make sure you've run the sync task from the Tasks page
 - Verify your Immich API credentials in `.env`
 - Check that people in Immich have birth dates configured
+- Check that you have uploaded Names and date of births in case of Photoprism
 
 ### CORS errors
 - Ensure `CORS_ALLOWED_ORIGINS` in `.env` includes your frontend URL
@@ -170,7 +173,18 @@ Photoprism based on TakenAt vs uploaded date of birth
 - Update `REACT_APP_API_URL` in `docker-compose.yml` to use your IP instead of localhost
 - Restart containers: `docker compose restart`
 
-
+### Port 3000 is already in use
+- Update docker-compose.yml set a different portnumber eg 3001
+```yaml
+  frontend:
+    ports:
+      - "3001:3000"
+```
+- also make this change in you .env file for CORS
+```env
+# CORS (frontend access)
+CORS_ALLOWED_ORIGINS=http://localhost:3001,http://192.168.x.x:3001
+```
 
 ## Contributing
 

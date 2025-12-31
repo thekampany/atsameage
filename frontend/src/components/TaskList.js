@@ -57,6 +57,18 @@ export default function TaskList() {
     }
   ]
 }`;
+  const exampleJsonPhotoprism = `{
+  "persons": [
+    {
+      "name": "Jane Doe",
+      "birth_date": "2020-03-15"
+    },
+    {
+      "name": "John Smith",
+      "birth_date": "2018-07-22"
+    }
+  ]
+}`;
 
   async function fetchTasks() {
     try {
@@ -590,11 +602,14 @@ export default function TaskList() {
               <p style={{ margin: 0, marginBottom: "8px" }}>
                 Populate this JSON with your persons and photos. The JSON can be reused to add photos.
               </p>
-              <p style={{ margin: 0, marginBottom: "8px" }}>
+              <p style={{ margin: 0 }}>
                 • <strong>Atsameage will add photos to existing persons</strong> with the same name as in the JSON.
               </p>
               <p style={{ margin: 0 }}>
                 • <strong>Atsameage will skip photos</strong> with a filename that was already uploaded earlier.
+              </p>
+              <p style={{ margin: 0 }}>
+                • <strong>For use with Photoprism</strong> person name and birthdate is sufficient (2nd example below).
               </p>
             </div>
 
@@ -611,6 +626,20 @@ export default function TaskList() {
               }}
             >
               {exampleJson}
+            </pre>
+            <pre
+              style={{
+                backgroundColor: isDarkMode ? "#111827" : "#f9fafb",
+                color: isDarkMode ? "#f3f4f6" : "#111827",
+                padding: "16px",
+                borderRadius: "6px",
+                overflow: "auto",
+                fontSize: "13px",
+                border: `1px solid ${isDarkMode ? "#374151" : "#e5e7eb"}`,
+                marginBottom: "16px",
+              }}
+            >
+              {exampleJsonPhotoprism}
             </pre>
 
             <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
